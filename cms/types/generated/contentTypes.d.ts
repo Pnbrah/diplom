@@ -788,6 +788,101 @@ export interface PluginI18NLocale extends Schema.CollectionType {
   };
 }
 
+export interface ApiAddon46Addon46 extends Schema.CollectionType {
+  collectionName: 'addon46s';
+  info: {
+    singularName: 'addon46';
+    pluralName: 'addon46s';
+    displayName: 'Addon46';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::addon46.addon46',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::addon46.addon46',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::addon46.addon46',
+      'oneToMany',
+      'api::addon46.addon46'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiItemNameItemName extends Schema.SingleType {
+  collectionName: 'item_names';
+  info: {
+    singularName: 'item-name';
+    pluralName: 'item-names';
+    displayName: 'Item Name';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    nameItems: Attribute.Enumeration<
+      [
+        '\u041C\u0456\u0448\u0435\u043D\u044C-\u0433\u043E\u043D\u0433 "\u041A\u043B\u0430\u0441\u0438\u0447\u043D\u0438\u0439 \u043C\u0456\u043D\u0456-\u043F\u043E\u043F\u043F\u0435\u0440" \u043D\u0430 \u043A\u0432\u0430\u0434\u0440\u0430\u0442\u043D\u0456\u0439 \u043F\u0456\u0434\u0441\u0442\u0430\u0432\u0446\u0456',
+        '\u041F\u0440\u043E\u0442\u0438\u0442\u0430\u043D\u043A\u043E\u0432\u0438\u0439 \u0433\u0440\u0430\u043D\u0430\u0442\u043E\u043C\u0435\u0442 \u0420\u041F\u0413-7 \u0437 \u043E\u043F\u0442\u0438\u0447\u043D\u0438\u043C \u043F\u0440\u0438\u0446\u0456\u043B\u043E\u043C \u041F\u0413\u041E-7\u0412\u0417 (40 \u043C\u043C)',
+        '\u041C\u0456\u0448\u0435\u043D\u043D\u0430 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430 \u0411\u044C\u044F\u043D\u0447\u0456 "8" (\u043D\u0430 \u043A\u043E\u043B\u0435\u0441\u0430\u0445)',
+        '\u041C\u0456\u0448\u0435\u043D\u043D\u0430 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430 "\u0422\u0435\u0445\u0430\u0441\u044C\u043A\u0430 \u0437\u0456\u0440\u043A\u0430"',
+        '\u041F\u0456\u0441\u0442\u043E\u043B\u0435\u0442 \u041F\u041C (9 \u043C\u043C)'
+      ]
+    > &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::item-name.item-name',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::item-name.item-name',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::item-name.item-name',
+      'oneToMany',
+      'api::item-name.item-name'
+    >;
+    locale: Attribute.String;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -806,6 +901,8 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
+      'api::addon46.addon46': ApiAddon46Addon46;
+      'api::item-name.item-name': ApiItemNameItemName;
     }
   }
 }

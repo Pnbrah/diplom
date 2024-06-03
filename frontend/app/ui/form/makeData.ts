@@ -1,72 +1,72 @@
-export type User = {
+export type Item = {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  state: string;
+  name: string;
+  number: string;
+  quantity: string;
+  price: string;
 };
 
-export const fakeData: User[] = [
-  {
-    id: '9s41rp',
-    firstName: 'Kelvin',
-    lastName: 'Langosh',
-    email: 'Jerod14@hotmail.com',
-    state: 'Ohio',
-  },
-  {
-    id: '08m6rx',
-    firstName: 'Molly',
-    lastName: 'Purdy',
-    email: 'Hugh.Dach79@hotmail.com',
-    state: 'Rhode Island',
-  },
-  {
-    id: '5ymtrc',
-    firstName: 'Henry',
-    lastName: 'Lynch',
-    email: 'Camden.Macejkovic@yahoo.com',
-    state: 'California',
-  },
-  {
-    id: 'ek5b97',
-    firstName: 'Glenda',
-    lastName: 'Douglas',
-    email: 'Eric0@yahoo.com',
-    state: 'Montana',
-  },
-  {
-    id: 'xxtydd',
-    firstName: 'Leone',
-    lastName: 'Williamson',
-    email: 'Ericka_Mueller52@yahoo.com',
-    state: 'Colorado',
-  },
-  {
-    id: 'wzxj9m',
-    firstName: 'Mckenna',
-    lastName: 'Friesen',
-    email: 'Veda_Feeney@yahoo.com',
-    state: 'New York',
-  },
-  {
-    id: '21dwtz',
-    firstName: 'Wyman',
-    lastName: 'Jast',
-    email: 'Melvin.Pacocha@yahoo.com',
-    state: 'Montana',
-  },
-  {
-    id: 'o8oe4k',
-    firstName: 'Janick',
-    lastName: 'Willms',
-    email: 'Delfina12@gmail.com',
-    state: 'Nebraska',
-  },
+export const fakeData: Item[] = [
+//   {
+//     id: '9s41rp',
+//     name: 'Kelvin',
+//     number: 'Langosh',
+//     quantity: 'Jerod14@hotmail.com',
+//     price: 'Ohio',
+//   },
+//   {
+//     id: '08m6rx',
+//     name: 'Molly',
+//     number: 'Purdy',
+//     quantity: 'Hugh.Dach79@hotmail.com',
+//     price: 'Rhode Island',
+//   },
+//   {
+//     id: '5ymtrc',
+//     name: 'Henry',
+//     number: 'Lynch',
+//     quantity: 'Camden.Macejkovic@yahoo.com',
+//     price: 'California',
+//   },
+//   {
+//     id: 'ek5b97',
+//     name: 'Glenda',
+//     number: 'Douglas',
+//     quantity: 'Eric0@yahoo.com',
+//     price: 'Montana',
+//   },
+//   {
+//     id: 'xxtydd',
+//     name: 'Leone',
+//     number: 'Williamson',
+//     quantity: 'Ericka_Mueller52@yahoo.com',
+//     price: 'Colorado',
+//   },
+//   {
+//     id: 'wzxj9m',
+//     name: 'Mckenna',
+//     number: 'Friesen',
+//     quantity: 'Veda_Feeney@yahoo.com',
+//     price: 'New York',
+//   },
+//   {
+//     id: '21dwtz',
+//     name: 'Wyman',
+//     number: 'Jast',
+//     quantity: 'Melvin.Pacocha@yahoo.com',
+//     price: 'Montana',
+//   },
+//   {
+//     id: 'o8oe4k',
+//     name: 'Janick',
+//     number: 'Willms',
+//     quantity: 'Delfina12@gmail.com',
+//     price: 'Nebraska',
+//   },
 ];
 
-//50 us states array
-export const usStates = [
+//50 us prices array
+export const listNames = [
   'Alabama',
   'Alaska',
   'Arizona',

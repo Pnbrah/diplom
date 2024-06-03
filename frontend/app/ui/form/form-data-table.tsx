@@ -22,7 +22,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { type User, fakeData, usStates } from './makeData';
+import { type Item, fakeData, listNames } from './makeData';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const FormDataTable = () => {
@@ -30,36 +30,36 @@ const FormDataTable = () => {
     Record<string, string | undefined>
   >({});
   //keep track of rows that have been edited
-  const [editedUsers, setEditedUsers] = useState<Record<string, User>>({});
+  const [editedItems, setEditedItems] = useState<Record<string, Item>>({});
 
-  const columns = useMemo<MRT_ColumnDef<User>[]>(
+  const columns = useMemo<MRT_ColumnDef<Item>[]>(
     () => [
       {
-        accessorKey: 'firstName',
+        accessorKey: 'name',
         header: 'Найменування ОВТ',
         editVariant: 'select',
-        editSelectOptions: usStates,
+        editSelectOptions: listNames,
         muiEditTextFieldProps: ({ row }) => ({
           select: true,
           error: !!validationErrors?.state,
           helperText: validationErrors?.state,
           onChange: (event) =>
-            setEditedUsers({
-              ...editedUsers,
-              [row.id]: { ...row.original, state: event.target.value },
+            setEditedItems({
+              ...editedItems,
+              [row.id]: { ...row.original, price: event.target.value },
             }),
         }),
       },
-      
+
       {
-        accessorKey: 'lastName',
+        accessorKey: 'numberOf',
         header: '№',
         muiEditTextFieldProps: ({ cell, row }) => ({
           type: 'number',
           required: true,
           error: !!validationErrors?.[cell.id],
           helperText: validationErrors?.[cell.id],
-          //store edited user in state to be saved later
+          //store edited item in state to be saved later
           onBlur: (event) => {
             const validationError = !validateRequired(event.currentTarget.value)
               ? 'Required'
@@ -68,40 +68,40 @@ const FormDataTable = () => {
               ...validationErrors,
               [cell.id]: validationError,
             });
-            setEditedUsers({ ...editedUsers, [row.id]: row.original });
+            setEditedItems({ ...editedItems, [row.id]: row.original });
           },
         }),
       },
       {
-        accessorKey: 'email',
+        accessorKey: 'quantity',
         header: 'Кількість',
         muiEditTextFieldProps: ({ cell, row }) => ({
           type: 'number',
           required: true,
           error: !!validationErrors?.[cell.id],
           helperText: validationErrors?.[cell.id],
-          //store edited user in state to be saved later
+          //store edited item in state to be saved later
           onBlur: (event) => {
-            const validationError = !validateEmail(event.currentTarget.value)
+            const validationError = !validateRequired(event.currentTarget.value)
               ? 'Неправильний формат'
               : undefined;
             setValidationErrors({
               ...validationErrors,
               [cell.id]: validationError,
             });
-            setEditedUsers({ ...editedUsers, [row.id]: row.original });
+            setEditedItems({ ...editedItems, [row.id]: row.original });
           },
         }),
       },
       {
-        accessorKey: 'state',
+        accessorKey: 'price',
         header: 'Ціна',
         muiEditTextFieldProps: ({ cell, row }) => ({
-          type: 'price',
+          type: 'number',
           required: true,
           error: !!validationErrors?.[cell.id],
           helperText: validationErrors?.[cell.id],
-          //store edited user in state to be saved later
+          //store edited item in state to be saved later
           onBlur: (event) => {
             const validationError = !validateRequired(event.currentTarget.value)
               ? 'Required'
@@ -110,74 +110,74 @@ const FormDataTable = () => {
               ...validationErrors,
               [cell.id]: validationError,
             });
-            setEditedUsers({ ...editedUsers, [row.id]: row.original });
+            setEditedItems({ ...editedItems, [row.id]: row.original });
           },
         }),
       },
     ],
-    [editedUsers, validationErrors],
+    [editedItems, validationErrors],
   );
 
   //call CREATE hook
-  const { mutateAsync: createUser, isPending: isCreatingUser } =
-    useCreateUser();
+  const { mutateAsync: createItem, isPending: isCreatingItem } =
+    useCreateItem();
   //call READ hook
   const {
-    data: fetchedUsers = [],
-    isError: isLoadingUsersError,
-    isFetching: isFetchingUsers,
-    isLoading: isLoadingUsers,
-  } = useGetUsers();
+    data: fetchedItems = [],
+    isError: isLoadingItemsError,
+    isFetching: isFetchingItems,
+    isLoading: isLoadingItems,
+  } = useGetItems();
   //call UPDATE hook
-  const { mutateAsync: updateUsers, isPending: isUpdatingUsers } =
-    useUpdateUsers();
+  const { mutateAsync: updateItems, isPending: isUpdatingItems } =
+    useUpdateItems();
   //call DELETE hook
-  const { mutateAsync: deleteUser, isPending: isDeletingUser } =
-    useDeleteUser();
+  const { mutateAsync: deleteItem, isPending: isDeletingItem } =
+    useDeleteItem();
 
   //CREATE action
-  const handleCreateUser: MRT_TableOptions<User>['onCreatingRowSave'] = async ({
+  const handleCreateItem: MRT_TableOptions<Item>['onCreatingRowSave'] = async ({
     values,
     table,
   }) => {
-    const newValidationErrors = validateUser(values);
+    const newValidationErrors = validateItem(values);
     if (Object.values(newValidationErrors).some((error) => error)) {
       setValidationErrors(newValidationErrors);
       return;
     }
     setValidationErrors({});
-    await createUser(values);
+    await createItem(values);
     table.setCreatingRow(null); //exit creating mode
   };
 
   //UPDATE action
-  const handleSaveUsers = async () => {
+  const handleSaveItems = async () => {
     if (Object.values(validationErrors).some((error) => !!error)) return;
-    await updateUsers(Object.values(editedUsers));
-    setEditedUsers({});
+    await updateItems(Object.values(editedItems));
+    setEditedItems({});
   };
 
   //DELETE action
-  const openDeleteConfirmModal = (row: MRT_Row<User>) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      deleteUser(row.original.id);
+  const openDeleteConfirmModal = (row: MRT_Row<Item>) => {
+    if (window.confirm('Are you sure you want to delete this item?')) {
+      deleteItem(row.original.id);
     }
   };
 
   const table = useMaterialReactTable({
     columns,
-    data: fetchedUsers,
+    data: fetchedItems,
     createDisplayMode: 'row', // ('modal', and 'custom' are also available)
     editDisplayMode: 'table', // ('modal', 'row', 'cell', and 'custom' are also
     enableEditing: true,
     enableRowActions: true,
     positionActionsColumn: 'last',
     getRowId: (row) => row.id,
-    muiToolbarAlertBannerProps: isLoadingUsersError
+    muiToolbarAlertBannerProps: isLoadingItemsError
       ? {
-          color: 'error',
-          children: 'Помилка завантаження даних',
-        }
+        color: 'error',
+        children: 'Помилка завантаження даних',
+      }
       : undefined,
     muiTableContainerProps: {
       sx: {
@@ -185,7 +185,7 @@ const FormDataTable = () => {
       },
     },
     onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateUser,
+    onCreatingRowSave: handleCreateItem,
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: '1rem' }}>
         <Tooltip title="Delete">
@@ -200,13 +200,13 @@ const FormDataTable = () => {
         <Button
           color="success"
           variant="contained"
-          onClick={handleSaveUsers}
+          onClick={handleSaveItems}
           disabled={
-            Object.keys(editedUsers).length === 0 ||
+            Object.keys(editedItems).length === 0 ||
             Object.values(validationErrors).some((error) => !!error)
           }
         >
-          {isUpdatingUsers ? <CircularProgress size={25} /> : 'Зберегти'}
+          {isUpdatingItems ? <CircularProgress size={25} /> : 'Зберегти'}
         </Button>
         {Object.values(validationErrors).some((error) => !!error) && (
           <Typography color="error">Виправте помилку перед збереженням</Typography>
@@ -230,47 +230,47 @@ const FormDataTable = () => {
       </Button>
     ),
     state: {
-      isLoading: isLoadingUsers,
-      isSaving: isCreatingUser || isUpdatingUsers || isDeletingUser,
-      showAlertBanner: isLoadingUsersError,
-      showProgressBars: isFetchingUsers,
+      isLoading: isLoadingItems,
+      isSaving: isCreatingItem || isUpdatingItems || isDeletingItem,
+      showAlertBanner: isLoadingItemsError,
+      showProgressBars: isFetchingItems,
     },
   });
 
   return <MaterialReactTable table={table} />;
 };
 
-//CREATE hook (post new user to api)
-function useCreateUser() {
+//CREATE hook (post new item to api)
+function useCreateItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (user: User) => {
+    mutationFn: async (item: Item) => {
       //send api update request here
       await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
       return Promise.resolve();
     },
     //client side optimistic update
-    onMutate: (newUserInfo: User) => {
+    onMutate: (newItemInfo: Item) => {
       queryClient.setQueryData(
-        ['users'],
-        (prevUsers: any) =>
+        ['items'],
+        (prevItems: any) =>
           [
-            ...prevUsers,
+            ...prevItems,
             {
-              ...newUserInfo,
+              ...newItemInfo,
               id: (Math.random() + 1).toString(36).substring(7),
             },
-          ] as User[],
+          ] as Item[],
       );
     },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
+    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['items'] }), //refetch items after mutation, disabled for demo
   });
 }
 
-//READ hook (get users from api)
-function useGetUsers() {
-  return useQuery<User[]>({
-    queryKey: ['users'],
+//READ hook (get items from api)
+function useGetItems() {
+  return useQuery<Item[]>({
+    queryKey: ['items'],
     queryFn: async () => {
       //send api request here
       await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
@@ -280,44 +280,44 @@ function useGetUsers() {
   });
 }
 
-//UPDATE hook (put user in api)
-function useUpdateUsers() {
+//UPDATE hook (put item in api)
+function useUpdateItems() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (users: User[]) => {
+    mutationFn: async (items: Item[]) => {
       //send api update request here
       await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
       return Promise.resolve();
     },
     //client side optimistic update
-    onMutate: (newUsers: User[]) => {
-      queryClient.setQueryData(['users'], (prevUsers: any) =>
-        prevUsers?.map((user: User) => {
-          const newUser = newUsers.find((u) => u.id === user.id);
-          return newUser ? newUser : user;
+    onMutate: (newItems: Item[]) => {
+      queryClient.setQueryData(['items'], (prevItems: any) =>
+        prevItems?.map((item: Item) => {
+          const newItem = newItems.find((u) => u.id === item.id);
+          return newItem ? newItem : item;
         }),
       );
     },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
+    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['items'] }), //refetch items after mutation, disabled for demo
   });
 }
 
-//DELETE hook (delete user in api)
-function useDeleteUser() {
+//DELETE hook (delete item in api)
+function useDeleteItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async (itemId: string) => {
       //send api update request here
       await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
       return Promise.resolve();
     },
     //client side optimistic update
-    onMutate: (userId: string) => {
-      queryClient.setQueryData(['users'], (prevUsers: any) =>
-        prevUsers?.filter((user: User) => user.id !== userId),
+    onMutate: (itemId: string) => {
+      queryClient.setQueryData(['items'], (prevItems: any) =>
+        prevItems?.filter((item: Item) => item.id !== itemId),
       );
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['items'] }), //refetch items after mutation, disabled for demo
   });
 }
 
@@ -332,21 +332,14 @@ const FormDataTableWithProviders = () => (
 export default FormDataTableWithProviders;
 
 const validateRequired = (value: string) => !!value.length;
-const validateEmail = (email: string) =>
-  !!email.length &&
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
 
-function validateUser(user: User) {
+function validateItem(item: Item) {
   return {
-    firstName: !validateRequired(user.firstName)
-      ? 'First Name is Required'
+    name: !validateRequired(item.name)
+      ? 'Виберіть назву'
       : '',
-    lastName: !validateRequired(user.lastName) ? 'Last Name is Required' : '',
-    email: !validateEmail(user.email) ? 'Неправильний формат' : '',
+    quantity: !validateRequired(item.quantity) ? 'Необхідне поле' : '',
+    price: !validateRequired(item.price) ? 'Необхідне поле' : '',
   };
 }
 
