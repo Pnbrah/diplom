@@ -1,0 +1,12 @@
+.root {
+  width: 23%;
+}
+  .input {
+    border: 0.0625rem solid #ced4da;
+    border-radius: 0.25rem;
+  }
+
+  .label {
+    color: rgb(161 161 170);
+    font-size: 1.1rem;
+  }
