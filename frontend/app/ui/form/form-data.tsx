@@ -20,7 +20,7 @@ export function Invoice() {
                 classNames={classes}
                 required
             />
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <TextInput label="Номер" placeholder="14/01/1991" classNames={classes} required />
 
                 <DatesProvider settings={{ locale: 'uk', firstDayOfWeek: 1, weekendDays: [0, 6] }}>
@@ -36,7 +36,7 @@ export function Invoice() {
                 </DatesProvider>
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['A0000', 'A0001', 'A0002', 'A0003']}
                     placeholder="Наприклад, A0000"
@@ -54,7 +54,7 @@ export function Invoice() {
                 />
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['A0000', 'A0001', 'A0002', 'A0003']}
                     placeholder="Наприклад, A0000"
@@ -72,7 +72,7 @@ export function Invoice() {
                 />
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
                     placeholder="Pick one"
@@ -104,11 +104,11 @@ export function Invoice() {
                 <TextInput label="№" placeholder="Номер" classNames={classes} required />
             </div>
 
-            <div className='py-2'>
+            <div className='py-3'>
                 <FormDataTableWithProviders />
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
                     placeholder="Pick one"
@@ -142,7 +142,7 @@ export function Invoice() {
                 />
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
                     placeholder="Pick one"
@@ -176,7 +176,7 @@ export function Invoice() {
                 />
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
                     placeholder="Pick one"
@@ -210,7 +210,7 @@ export function Invoice() {
                 />
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
                     placeholder="Pick one"
@@ -236,7 +236,7 @@ export function Invoice() {
                 />
             </div>
 
-            <div className='flex space-x-3'>
+            <div className='flex space-x-3 py-1'>
                 <Select
                     data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
                     placeholder="Pick one"

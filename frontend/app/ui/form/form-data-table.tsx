@@ -22,15 +22,24 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { type Item, fakeData, listNames } from './makeData';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { type Item, listNames, fakeData } from '@/utils/makeData';
+
+
+const useListNames = () => {
+  return useQuery({
+    queryKey: ['listNames'],
+    queryFn: listNames,
+    staleTime: Infinity,
+  });
+};
+
 
 const FormDataTable = () => {
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string | undefined>
-  >({});
-  //keep track of rows that have been edited
+  const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const [editedItems, setEditedItems] = useState<Record<string, Item>>({});
+  
+  const { data: itemNames = [] } = useListNames();
 
   const columns = useMemo<MRT_ColumnDef<Item>[]>(
     () => [
@@ -38,7 +47,7 @@ const FormDataTable = () => {
         accessorKey: 'name',
         header: 'Найменування ОВТ',
         editVariant: 'select',
-        editSelectOptions: listNames,
+        editSelectOptions: itemNames,
         muiEditTextFieldProps: ({ row }) => ({
           select: true,
           error: !!validationErrors?.state,
@@ -50,7 +59,6 @@ const FormDataTable = () => {
             }),
         }),
       },
-
       {
         accessorKey: 'numberOf',
         header: '№',
@@ -59,11 +67,8 @@ const FormDataTable = () => {
           required: true,
           error: !!validationErrors?.[cell.id],
           helperText: validationErrors?.[cell.id],
-          //store edited item in state to be saved later
           onBlur: (event) => {
-            const validationError = !validateRequired(event.currentTarget.value)
-              ? 'Required'
-              : undefined;
+            const validationError = !validateRequired(event.currentTarget.value) ? 'Required' : undefined;
             setValidationErrors({
               ...validationErrors,
               [cell.id]: validationError,
@@ -80,11 +85,8 @@ const FormDataTable = () => {
           required: true,
           error: !!validationErrors?.[cell.id],
           helperText: validationErrors?.[cell.id],
-          //store edited item in state to be saved later
           onBlur: (event) => {
-            const validationError = !validateRequired(event.currentTarget.value)
-              ? 'Неправильний формат'
-              : undefined;
+            const validationError = !validateRequired(event.currentTarget.value) ? 'Неправильний формат' : undefined;
             setValidationErrors({
               ...validationErrors,
               [cell.id]: validationError,
@@ -101,11 +103,8 @@ const FormDataTable = () => {
           required: true,
           error: !!validationErrors?.[cell.id],
           helperText: validationErrors?.[cell.id],
-          //store edited item in state to be saved later
           onBlur: (event) => {
-            const validationError = !validateRequired(event.currentTarget.value)
-              ? 'Required'
-              : undefined;
+            const validationError = !validateRequired(event.currentTarget.value) ? 'Required' : undefined;
             setValidationErrors({
               ...validationErrors,
               [cell.id]: validationError,
@@ -115,31 +114,15 @@ const FormDataTable = () => {
         }),
       },
     ],
-    [editedItems, validationErrors],
+    [editedItems, validationErrors, itemNames]
   );
 
-  //call CREATE hook
-  const { mutateAsync: createItem, isPending: isCreatingItem } =
-    useCreateItem();
-  //call READ hook
-  const {
-    data: fetchedItems = [],
-    isError: isLoadingItemsError,
-    isFetching: isFetchingItems,
-    isLoading: isLoadingItems,
-  } = useGetItems();
-  //call UPDATE hook
-  const { mutateAsync: updateItems, isPending: isUpdatingItems } =
-    useUpdateItems();
-  //call DELETE hook
-  const { mutateAsync: deleteItem, isPending: isDeletingItem } =
-    useDeleteItem();
+  const { mutateAsync: createItem, isPending: isCreatingItem } = useCreateItem();
+  const { data: fetchedItems = [], isError: isLoadingItemsError, isFetching: isFetchingItems, isLoading: isLoadingItems } = useGetItems();
+  const { mutateAsync: updateItems, isPending: isUpdatingItems } = useUpdateItems();
+  const { mutateAsync: deleteItem, isPending: isDeletingItem } = useDeleteItem();
 
-  //CREATE action
-  const handleCreateItem: MRT_TableOptions<Item>['onCreatingRowSave'] = async ({
-    values,
-    table,
-  }) => {
+  const handleCreateItem: MRT_TableOptions<Item>['onCreatingRowSave'] = async ({ values, table }) => {
     const newValidationErrors = validateItem(values);
     if (Object.values(newValidationErrors).some((error) => error)) {
       setValidationErrors(newValidationErrors);
@@ -147,17 +130,15 @@ const FormDataTable = () => {
     }
     setValidationErrors({});
     await createItem(values);
-    table.setCreatingRow(null); //exit creating mode
+    table.setCreatingRow(null);
   };
 
-  //UPDATE action
   const handleSaveItems = async () => {
     if (Object.values(validationErrors).some((error) => !!error)) return;
     await updateItems(Object.values(editedItems));
     setEditedItems({});
   };
 
-  //DELETE action
   const openDeleteConfirmModal = (row: MRT_Row<Item>) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       deleteItem(row.original.id);
@@ -167,17 +148,17 @@ const FormDataTable = () => {
   const table = useMaterialReactTable({
     columns,
     data: fetchedItems,
-    createDisplayMode: 'row', // ('modal', and 'custom' are also available)
-    editDisplayMode: 'table', // ('modal', 'row', 'cell', and 'custom' are also
+    createDisplayMode: 'row',
+    editDisplayMode: 'table',
     enableEditing: true,
     enableRowActions: true,
     positionActionsColumn: 'last',
     getRowId: (row) => row.id,
     muiToolbarAlertBannerProps: isLoadingItemsError
       ? {
-        color: 'error',
-        children: 'Помилка завантаження даних',
-      }
+          color: 'error',
+          children: 'Помилка завантаження даних',
+        }
       : undefined,
     muiTableContainerProps: {
       sx: {
@@ -188,7 +169,7 @@ const FormDataTable = () => {
     onCreatingRowSave: handleCreateItem,
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: '1rem' }}>
-        <Tooltip title="Delete">
+        <Tooltip title="Видалити">
           <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
             <DeleteIcon />
           </IconButton>
@@ -217,13 +198,7 @@ const FormDataTable = () => {
       <Button
         variant="contained"
         onClick={() => {
-          table.setCreatingRow(true); //simplest way to open the create row modal with no default values
-          //or you can pass in a row object to set default values with the `createRow` helper function
-          // table.setCreatingRow(
-          //   createRow(table, {
-          //     //optionally pass in default values for the new row, useful for nested data or other complex scenarios
-          //   }),
-          // );
+          table.setCreatingRow(true);
         }}
       >
         Додати позицію
@@ -263,7 +238,6 @@ function useCreateItem() {
           ] as Item[],
       );
     },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['items'] }), //refetch items after mutation, disabled for demo
   });
 }
 
@@ -273,7 +247,7 @@ function useGetItems() {
     queryKey: ['items'],
     queryFn: async () => {
       //send api request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
+      
       return Promise.resolve(fakeData);
     },
     refetchOnWindowFocus: false,
@@ -286,7 +260,7 @@ function useUpdateItems() {
   return useMutation({
     mutationFn: async (items: Item[]) => {
       //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
+      
       return Promise.resolve();
     },
     //client side optimistic update
@@ -298,7 +272,6 @@ function useUpdateItems() {
         }),
       );
     },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['items'] }), //refetch items after mutation, disabled for demo
   });
 }
 
@@ -308,7 +281,7 @@ function useDeleteItem() {
   return useMutation({
     mutationFn: async (itemId: string) => {
       //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
+      
       return Promise.resolve();
     },
     //client side optimistic update
@@ -316,8 +289,7 @@ function useDeleteItem() {
       queryClient.setQueryData(['items'], (prevItems: any) =>
         prevItems?.filter((item: Item) => item.id !== itemId),
       );
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['items'] }), //refetch items after mutation, disabled for demo
+    },  
   });
 }
 
