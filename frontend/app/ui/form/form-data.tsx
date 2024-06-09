@@ -1,33 +1,102 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import 'dayjs/locale/uk';
-import { Select, TextInput } from '@mantine/core';
+import { Select, TextInput, Button } from '@mantine/core';
 import { DatesProvider, DateInput } from '@mantine/dates';
 import classes from './form-data.module.css';
 import FormDataTableWithProviders from './form-data-table';
-
+import { initialFormData } from '@/app/api/data/constants';
+import { FormData } from '@/app/api/data/interfaces';
+import { fetchSelectData, saveInvoice } from '@/app/api/data/api';
 
 export function Invoice() {
     const [value, setValue] = useState<Date | null>(null);
     const [value1, setValue1] = useState<Date | null>(null);
+    const [formData, setFormData] = useState<FormData>(initialFormData);
+    const [selectData, setSelectData] = useState({
+        operations: [],
+        headquarters: [],
+        warehouses: [],
+        bases: [],
+        positions: [],
+        ranks: [],
+        names: [],
+        actions: [],
+    });
+
+    useEffect(() => {
+        async function getData() {
+            try {
+                const data = await fetchSelectData();
+                setSelectData(data);
+            } catch (error) {
+                console.error('Failed to fetch select data', error);
+            }
+        }
+
+        getData();
+    }, []);
+
+    const handleChange = (field: string, value: any) => {
+        setFormData(prevState => ({ ...prevState, [field]: value }));
+    };
+
+    const handleSubmit = async () => {
+        try {
+          await saveInvoice(formData);
+          alert('Дані успішно збережені');
+    
+          
+          setFormData(initialFormData);
+          setValue(null); 
+          setValue1(null); 
+        } catch (error) {
+          alert('Помилка збереження даних');
+        }
+      };
+
+    const renderSelects = (fields: Array<{ label: string, field: string, data: any[], handleChange: (field: string, value: any) => void }>) => {
+        return fields.map(({ label, field, data, handleChange }) => (
+            <Select
+                key={field}
+                data={data}
+                placeholder={`Оберіть ${label.toLowerCase()}`}
+                label={label}
+                classNames={classes}
+                required
+                onChange={(value) => handleChange(field, value)}
+            />
+        ));
+    };
+
     return (
         <div>
             <Select
-                data={['Накладна 1', 'Накладна 2', 'Накладна 3', 'Накладна 4']}
-                placeholder="Наприклад, Накладна 1"
+                data={selectData.operations}
+                placeholder="Наприклад, АПП"
                 label="Операція"
                 classNames={classes}
                 required
+                onChange={(value) => handleChange('operation', value)}
             />
             <div className='flex space-x-3 py-1'>
-                <TextInput label="Номер" placeholder="14/01/1991" classNames={classes} required />
+                <TextInput
+                    label="Номер"
+                    placeholder="14/01/1991"
+                    classNames={classes}
+                    required
+                    onChange={(event) => handleChange('number', event.currentTarget.value)}
+                />
 
                 <DatesProvider settings={{ locale: 'uk', firstDayOfWeek: 1, weekendDays: [0, 6] }}>
                     <DateInput
                         value={value}
                         valueFormat="DD MMMM YYYY"
-                        onChange={setValue}
+                        onChange={(date) => {
+                            setValue(date);
+                            handleChange('basisDate', date);
+                        }}
                         label="від"
                         placeholder="Дата"
                         classNames={classes}
@@ -37,63 +106,32 @@ export function Invoice() {
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Наприклад, A0000"
-                    label="Вантажовідправник"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['(склад РАО)', '(ППО)', '(артилерія)', '(рота логістики)']}
-                    placeholder="Наприклад, (склад РАО)"
-                    label="Склад (підрозділ)"
-                    classNames={classes}
-                    required
-                />
+                {renderSelects([
+                    { label: 'Вантажовідправник', field: 'headquarterSender', data: selectData.headquarters, handleChange },
+                    { label: 'Склад (підрозділ)', field: 'warehouseSender', data: selectData.warehouses, handleChange },
+                ])}
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Наприклад, A0000"
-                    label="Вантажоодержувач"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['(склад РАО)', '(ППО)', '(артилерія)', '(рота логістики)']}
-                    placeholder="Наприклад, (склад РАО)"
-                    label="Склад (підрозділ)"
-                    classNames={classes}
-                    required
-                />
+                {renderSelects([
+                    { label: 'Вантажоодержувач', field: 'headquarterReceiver', data: selectData.headquarters, handleChange },
+                    { label: 'Склад (підрозділ)', field: 'warehouseReceiver', data: selectData.warehouses, handleChange },
+                ])}
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
-                    placeholder="Pick one"
-                    label="Підстава (мета)"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
+                {renderSelects([
+                    { label: 'Підстава (мета)', field: 'basis', data: selectData.bases, handleChange },
+                    { label: ' ', field: 'basisHeadquarter', data: selectData.headquarters, handleChange },
+                ])}
                 <DatesProvider settings={{ locale: 'uk', firstDayOfWeek: 1, weekendDays: [0, 6] }}>
                     <DateInput
                         value={value1}
                         valueFormat="DD MMMM YYYY"
-                        onChange={setValue1}
+                        onChange={(date) => {
+                            setValue1(date);
+                            handleChange('basisDate', date);
+                        }}
                         label="від"
                         placeholder="Дата"
                         classNames={classes}
@@ -101,7 +139,13 @@ export function Invoice() {
                     />
                 </DatesProvider>
 
-                <TextInput label="№" placeholder="Номер" classNames={classes} required />
+                <TextInput
+                    label="№"
+                    placeholder="Номер"
+                    classNames={classes}
+                    required
+                    onChange={(event) => handleChange('basisNumber', event.currentTarget.value)}
+                />
             </div>
 
             <div className='py-3'>
@@ -109,158 +153,48 @@ export function Invoice() {
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
-                    placeholder="Pick one"
-                    label="Нач РАО"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
+                {renderSelects([
+                    { label: 'Нач РАО', field: 'headRAO', data: selectData.positions, handleChange },
+                    { label: 'звання', field: 'headRAORank', data: selectData.ranks, handleChange },
+                    { label: 'ім\'я', field: 'headRAOName', data: selectData.names, handleChange },
+                ])}
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
-                    placeholder="Pick one"
-                    label="Нач ФЕС"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
+                {renderSelects([
+                    { label: 'Нач ФЕС', field: 'headFES', data: selectData.positions, handleChange },
+                    { label: 'звання', field: 'headFESRank', data: selectData.ranks, handleChange },
+                    { label: 'ім\'я', field: 'headFESName', data: selectData.names, handleChange },
+                ])}
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
-                    placeholder="Pick one"
-                    label="Діловод РАО"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
+                {renderSelects([
+                    { label: 'Діловод РАО', field: 'clerk', data: selectData.positions, handleChange },
+                    { label: 'звання', field: 'clerkRank', data: selectData.ranks, handleChange },
+                    { label: 'ім\'я', field: 'clerkName', data: selectData.names, handleChange },
+                ])}
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
-                    placeholder="Pick one"
-                    label="Нач Складу"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
+                {renderSelects([
+                    { label: 'Нач Складу', field: 'warehouseStatus', data: selectData.actions, handleChange },
+                    { label: 'посада', field: 'warehouseHead', data: selectData.positions, handleChange },
+                    { label: 'звання', field: 'warehouseHeadRank', data: selectData.ranks, handleChange },
+                    { label: 'ім\'я', field: 'warehouseHeadName', data: selectData.names, handleChange },
+                ])}
             </div>
 
             <div className='flex space-x-3 py-1'>
-                <Select
-                    data={['Розпорядження', 'Наказ', 'Заявка', 'Наряд']}
-                    placeholder="Pick one"
-                    label="Одержувач"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
-
-                <Select
-                    data={['A0000', 'A0001', 'A0002', 'A0003']}
-                    placeholder="Pick one"
-                    label="-"
-                    classNames={classes}
-                    required
-                />
+                {renderSelects([
+                    { label: 'Одержувач', field: 'recipientStatus', data: selectData.actions, handleChange },
+                    { label: 'посада', field: 'recipient', data: selectData.positions, handleChange },
+                    { label: 'звання', field: 'recipientRank', data: selectData.ranks, handleChange },
+                    { label: 'ім\'я', field: 'recipientName', data: selectData.names, handleChange },
+                ])}
             </div>
+
+            <Button onClick={handleSubmit} className='my-5' variant="filled" color="blue">ЗБЕРЕГТИ</Button>
         </div>
     );
 }

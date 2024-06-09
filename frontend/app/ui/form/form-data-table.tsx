@@ -23,7 +23,9 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { type Item, listNames, fakeData } from '@/utils/makeData';
+import { type Item, listNames, fakeData } from '@/app/api/data/api';
+import axios from 'axios';
+import { API_URL, API_TOKEN } from '@/app/api/data/constants';
 
 
 const useListNames = () => {
@@ -38,13 +40,15 @@ const useListNames = () => {
 const FormDataTable = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const [editedItems, setEditedItems] = useState<Record<string, Item>>({});
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentItems, setCurrentItems] = useState<Item[]>([]);
+
   const { data: itemNames = [] } = useListNames();
 
   const columns = useMemo<MRT_ColumnDef<Item>[]>(
     () => [
       {
-        accessorKey: 'name',
+        accessorKey: 'itemList',
         header: 'Найменування ОВТ',
         editVariant: 'select',
         editSelectOptions: itemNames,
@@ -60,7 +64,7 @@ const FormDataTable = () => {
         }),
       },
       {
-        accessorKey: 'numberOf',
+        accessorKey: 'itemNumber',
         header: '№',
         muiEditTextFieldProps: ({ cell, row }) => ({
           type: 'number',
@@ -156,9 +160,9 @@ const FormDataTable = () => {
     getRowId: (row) => row.id,
     muiToolbarAlertBannerProps: isLoadingItemsError
       ? {
-          color: 'error',
-          children: 'Помилка завантаження даних',
-        }
+        color: 'error',
+        children: 'Помилка завантаження даних',
+      }
       : undefined,
     muiTableContainerProps: {
       sx: {
@@ -178,17 +182,6 @@ const FormDataTable = () => {
     ),
     renderBottomToolbarCustomActions: () => (
       <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <Button
-          color="success"
-          variant="contained"
-          onClick={handleSaveItems}
-          disabled={
-            Object.keys(editedItems).length === 0 ||
-            Object.values(validationErrors).some((error) => !!error)
-          }
-        >
-          {isUpdatingItems ? <CircularProgress size={25} /> : 'Зберегти'}
-        </Button>
         {Object.values(validationErrors).some((error) => !!error) && (
           <Typography color="error">Виправте помилку перед збереженням</Typography>
         )}
@@ -220,9 +213,21 @@ function useCreateItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (item: Item) => {
-      //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve();
+      const response = await axios.post(`${API_URL}/api/items`, {
+        data: {
+          itemList: item.itemList,
+          itemNumber: item.itemNumber,
+          quantity: item.quantity,
+          price: item.price,
+        },
+      }, {
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+      });
+
+      if (response.status !== 200) {
+        throw new Error('Failed to create item');
+      }
+      return response.data; // Return the created item data
     },
     //client side optimistic update
     onMutate: (newItemInfo: Item) => {
@@ -247,7 +252,7 @@ function useGetItems() {
     queryKey: ['items'],
     queryFn: async () => {
       //send api request here
-      
+
       return Promise.resolve(fakeData);
     },
     refetchOnWindowFocus: false,
@@ -258,19 +263,28 @@ function useGetItems() {
 function useUpdateItems() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (items: Item[]) => {
-      //send api update request here
-      
-      return Promise.resolve();
+    mutationFn: async (updatedItems: Item[]) => {
+      const updatePromises = updatedItems.map(async (item) => {
+        const response = await axios.put(`${API_URL}/api/items/${item.id}`, {
+          data: {
+            itemList: item.itemList,
+            itemNumber: item.itemNumber,
+            quantity: item.quantity,
+            price: item.price,
+          },
+        }, {
+          headers: { Authorization: `Bearer ${API_TOKEN}` },
+        });
+
+        if (response.status !== 200) {
+          throw new Error(`Failed to update item with ID ${item.id}`);
+        }
+      });
+
+      await Promise.all(updatePromises);
     },
-    //client side optimistic update
-    onMutate: (newItems: Item[]) => {
-      queryClient.setQueryData(['items'], (prevItems: any) =>
-        prevItems?.map((item: Item) => {
-          const newItem = newItems.find((u) => u.id === item.id);
-          return newItem ? newItem : item;
-        }),
-      );
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
     },
   });
 }
@@ -281,15 +295,13 @@ function useDeleteItem() {
   return useMutation({
     mutationFn: async (itemId: string) => {
       //send api update request here
-      
-      return Promise.resolve();
+      await axios.delete(`${API_URL}/api/items/${itemId}`, {
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+      });
     },
-    //client side optimistic update
-    onMutate: (itemId: string) => {
-      queryClient.setQueryData(['items'], (prevItems: any) =>
-        prevItems?.filter((item: Item) => item.id !== itemId),
-      );
-    },  
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+    },
   });
 }
 
@@ -307,12 +319,10 @@ const validateRequired = (value: string) => !!value.length;
 
 function validateItem(item: Item) {
   return {
-    name: !validateRequired(item.name)
+    itemList: !validateRequired(item.itemList)
       ? 'Виберіть назву'
       : '',
     quantity: !validateRequired(item.quantity) ? 'Необхідне поле' : '',
     price: !validateRequired(item.price) ? 'Необхідне поле' : '',
   };
 }
-
-

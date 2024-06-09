@@ -362,29 +362,6 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
-export interface ApiItemItem extends Schema.CollectionType {
-  collectionName: 'items';
-  info: {
-    singularName: 'item';
-    pluralName: 'items';
-    displayName: 'item';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    list: Attribute.String;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-  };
-}
-
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -811,6 +788,361 @@ export interface PluginI18NLocale extends Schema.CollectionType {
   };
 }
 
+export interface ApiActionAction extends Schema.CollectionType {
+  collectionName: 'actions';
+  info: {
+    singularName: 'action';
+    pluralName: 'actions';
+    displayName: 'Action';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::action.action',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::action.action',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiBasisBasis extends Schema.CollectionType {
+  collectionName: 'bases';
+  info: {
+    singularName: 'basis';
+    pluralName: 'bases';
+    displayName: 'Basis';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::basis.basis',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::basis.basis',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiHeadquarterHeadquarter extends Schema.CollectionType {
+  collectionName: 'headquarters';
+  info: {
+    singularName: 'headquarter';
+    pluralName: 'headquarters';
+    displayName: 'headquarter';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    code: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::headquarter.headquarter',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::headquarter.headquarter',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiInvoiceInvoice extends Schema.CollectionType {
+  collectionName: 'invoices';
+  info: {
+    singularName: 'invoice';
+    pluralName: 'invoices';
+    displayName: 'Invoice';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    number: Attribute.String;
+    operation: Attribute.String;
+    date: Attribute.Date;
+    headquarterSender: Attribute.String;
+    warehouseSender: Attribute.String;
+    headquarterReceiver: Attribute.String;
+    warehouseReceiver: Attribute.String;
+    basis: Attribute.String;
+    basisHeadquarter: Attribute.String;
+    basisDate: Attribute.Date;
+    basisNumber: Attribute.Integer;
+    headRAO: Attribute.String;
+    headRAORank: Attribute.String;
+    headRAOName: Attribute.String;
+    headFES: Attribute.String;
+    headFESRank: Attribute.String;
+    headFESName: Attribute.String;
+    clerk: Attribute.String;
+    clerkRank: Attribute.String;
+    clerkName: Attribute.String;
+    warehouseHead: Attribute.String;
+    warehouseHeadRank: Attribute.String;
+    warehouseHeadName: Attribute.String;
+    warehouseStatus: Attribute.String;
+    recipient: Attribute.String;
+    recipientStatus: Attribute.String;
+    recipientRank: Attribute.String;
+    recipientName: Attribute.String;
+    items: Attribute.Relation<
+      'api::invoice.invoice',
+      'oneToMany',
+      'api::item.item'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::invoice.invoice',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::invoice.invoice',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiItemItem extends Schema.CollectionType {
+  collectionName: 'items';
+  info: {
+    singularName: 'item';
+    pluralName: 'items';
+    displayName: 'item';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    price: Attribute.Float;
+    quantity: Attribute.Integer;
+    itemNumber: Attribute.Integer;
+    itemList: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiItemlistItemlist extends Schema.CollectionType {
+  collectionName: 'itemlists';
+  info: {
+    singularName: 'itemlist';
+    pluralName: 'itemlists';
+    displayName: 'itemlist';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    list: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::itemlist.itemlist',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::itemlist.itemlist',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiOperationOperation extends Schema.CollectionType {
+  collectionName: 'operations';
+  info: {
+    singularName: 'operation';
+    pluralName: 'operations';
+    displayName: 'Operation';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::operation.operation',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::operation.operation',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiPersonPerson extends Schema.CollectionType {
+  collectionName: 'people';
+  info: {
+    singularName: 'person';
+    pluralName: 'people';
+    displayName: 'Person';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    rank: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::person.person',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::person.person',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiPositionPosition extends Schema.CollectionType {
+  collectionName: 'positions';
+  info: {
+    singularName: 'position';
+    pluralName: 'positions';
+    displayName: 'Position';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::position.position',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::position.position',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiRankRank extends Schema.CollectionType {
+  collectionName: 'ranks';
+  info: {
+    singularName: 'rank';
+    pluralName: 'ranks';
+    displayName: 'Rank';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::rank.rank', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::rank.rank', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiWarehouseWarehouse extends Schema.CollectionType {
+  collectionName: 'warehouses';
+  info: {
+    singularName: 'warehouse';
+    pluralName: 'warehouses';
+    displayName: 'Warehouse';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::warehouse.warehouse',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::warehouse.warehouse',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -821,7 +1153,6 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
-      'api::item.item': ApiItemItem;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;
@@ -830,6 +1161,17 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
+      'api::action.action': ApiActionAction;
+      'api::basis.basis': ApiBasisBasis;
+      'api::headquarter.headquarter': ApiHeadquarterHeadquarter;
+      'api::invoice.invoice': ApiInvoiceInvoice;
+      'api::item.item': ApiItemItem;
+      'api::itemlist.itemlist': ApiItemlistItemlist;
+      'api::operation.operation': ApiOperationOperation;
+      'api::person.person': ApiPersonPerson;
+      'api::position.position': ApiPositionPosition;
+      'api::rank.rank': ApiRankRank;
+      'api::warehouse.warehouse': ApiWarehouseWarehouse;
     }
   }
 }

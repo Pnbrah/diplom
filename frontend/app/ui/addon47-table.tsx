@@ -2,133 +2,234 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MantineReactTable, useMantineReactTable, type MRT_ColumnDef, type MRT_ColumnFiltersState, type MRT_SortingState, type MRT_Virtualizer } from 'mantine-react-table';
-import { Text } from '@mantine/core';
+import { Text, Button } from '@mantine/core';
 import { QueryClient, QueryClientProvider, useInfiniteQuery } from '@tanstack/react-query';
-import { type User } from '@/utils/mock';
 import axios from 'axios';
+import { generateDocument } from './generate-document';
 
-type UserApiResponse = {
-  data: Array<User>;
+const API_TOKEN = '3edea083405efad219925296cf692dc64cd4528687c306764b679043e92a8eaddb344c09ef178f9cb816fe5b83682af5656c214302199ed080567f917027533df38ad95ee85a057a4de033f6f9f3091c9c5214aa213b898b99d4e2133dc9a0968f6b69ae65a575fdc9159cf29a1d6fb2a202cc40f445c861d5e1bba4738e6abf';
+
+interface InvoiceItem {
+  id: number;
+  attributes: {
+    operation: string,
+    number: string,
+    date: Date | null,
+    headquarterSender: string,
+    warehouseSender: string,
+    headquarterReceiver: string,
+    warehouseReceiver: string,
+    basis: string,
+    basisHeadquarter: string,
+    basisDate: Date | null,
+    basisNumber: string,
+    headRAO: string,
+    headRAORank: string,
+    headRAOName: string,
+    headFES: string,
+    headFESRank: string,
+    headFESName: string,
+    clerk: string,
+    clerkRank: string,
+    clerkName: string,
+    warehouseHead: string,
+    warehouseHeadRank: string,
+    warehouseHeadName: string,
+    warehouseStatus: string,
+    recipient: string,
+    recipientStatus: string,
+    recipientRank: string,
+    recipientName: string,
+    items: { // Масив об'єктів Item
+      data: {
+        id: number;
+        attributes: {
+          itemList: string;
+          itemNumber: number ;
+          quantity: number;
+          price: number;
+        };
+      }[];
+    };
+  };
+}
+
+type InvoiceApiResponse = {
+  data: Array<InvoiceItem>;
   meta: {
-    totalRowCount: number;
+    pagination: {
+      total: number;
+      page: number;
+      pageSize: number;
+      pageCount: number;
+    };
   };
 };
 
-const columns: MRT_ColumnDef<User>[] = [
+
+const columns: MRT_ColumnDef<InvoiceItem>[] = [
+  // {
+  //   accessorKey: 'attributes.items',
+  //   header: 'Товари',
+  //   id: 'items',
+  //   columns: [
+  //     { accessorKey: 'attributes.items.data.itemList', header: 'Найменування' },
+  //     { accessorKey: 'attributes.items.data.itemNumber', header: 'Номер' },
+  //     { accessorKey: 'attributes.items.data.quantity', header: 'Кількість' },
+  //     { accessorKey: 'attributes.items.data.price', header: 'Ціна' },
+  //   ],
+  // },
   {
-    header: 'Номер зразка',
-    columns: [
-      {
-        header: 'заводський',
-        columns: [
-          {
-            accessorKey: 'firstName',
-            header: '1',
-            
-          }
-        ]
-      },
-      {
-        header: 'державний',
-        columns: [
-          {
-            accessorKey: 'lastName',
-            header: '2',
-          }
-        ]
-      },
-    ]
-  },  
-  {
-    header: 'Номер формуляра (паспорта)',
-    columns: [
-      {
-        accessorKey: 'address',
-        header: '3',
-      }
-    ]
+    accessorKey: 'attributes.number',
+    header: 'Номер',
+    id: 'invoiceNumber'
   },
   {
-    header: 'Рік виготовлення',
-    columns: [
-      {
-        accessorKey: 'year',
-        header: '4',
-      }
-    ]
+    accessorKey: 'attributes.date',
+    header: 'Дата',
+    id: 'invoiceDate'
   },
   {
-    header: 'Ціна за одиницю',
+    header: 'Відправник',
+    id: 'shipper',
     columns: [
       {
-        accessorKey: 'price',
-        header: '5',
-      }
-    ]
+        accessorKey: 'attributes.headquarterSender',
+        header: 'Штаб',
+        id: 'headquarterSender',
+      },
+      {
+        accessorKey: 'attributes.warehouseSender',
+        header: 'Склад',
+        id: 'warehouseSender',
+      },
+    ],
   },
   {
-    header: 'Надійшло',
+    header: 'Одержувач',
+    id: 'recipient',
     columns: [
       {
-        header: 'дата',
-        columns: [
-          {
-            accessorKey: 'firstName',
-            header: '6',
-          }
-        ]
+        accessorKey: 'attributes.headquarterReceiver',
+        header: 'Штаб',
+        id: 'headquarterReceiver',
       },
       {
-        header: 'номер і дата документа',
-        columns: [
-          {
-            accessorKey: 'lastName',
-            header: '7',
-          }
-        ]
+        accessorKey: 'attributes.warehouseReceiver',
+        header: 'Склад',
+        id: 'warehouseReceiver',
       },
-    ]
-  },  
-  {
-    header: 'Місце знаходження',
-    columns: [
       {
-        accessorKey: 'address',
-        header: '8',
-      }
-    ]
+        accessorKey: 'attributes.recipientStatus',
+        header: 'Статус',
+        id: 'recipientStatus',
+      },
+      {
+        accessorKey: 'attributes.recipientRank',
+        header: 'Звання',
+        id: 'recipientRank',
+      },
+      {
+        accessorKey: 'attributes.recipientName',
+        header: "ПІБ",
+        id: 'recipientName',
+      },
+    ],
   },
   {
-    header: 'Номер і дата наказу про закріплення',
+    header: 'Підстава',
+    id: 'basis',
     columns: [
       {
-        accessorKey: 'address',
-        header: '9',
-      }
-    ]
+        accessorKey: 'attributes.basis',
+        header: 'Тип',
+        id: 'basisType',
+      },
+      {
+        accessorKey: 'attributes.basisHeadquarter',
+        header: 'Штаб',
+        id: 'basisHeadquarter',
+      },
+      {
+        accessorKey: 'attributes.basisDate',
+        header: 'Дата',
+        id: 'basisDate',
+      },
+      {
+        accessorKey: 'attributes.basisNumber',
+        header: 'Номер',
+        id: 'basisNumber',
+      },
+    ],
   },
   {
-    header: 'Вибуло',
+    header: 'Нач. РАО',
+    id: 'headRAO',
     columns: [
       {
-        header: 'дата',
-        columns: [
-          {
-            accessorKey: 'firstName',
-            header: '10',
-          }
-        ]
+        accessorKey: 'attributes.headRAORank',
+        header: 'Звання',
+        id: 'headRAORank',
       },
       {
-        header: 'номер і дата документа',
-        columns: [
-          {
-            accessorKey: 'lastName',
-            header: '11',
-          }
-        ]
+        accessorKey: 'attributes.headRAOName',
+        header: 'ПІБ',
+        id: 'headRAOName',
       },
-    ]
+    ],
+  },
+  {
+    header: 'Нач. ФЕС',
+    id: 'headFES',
+    columns: [
+      {
+        accessorKey: 'attributes.headFESRank',
+        header: 'Звання',
+        id: 'headFESRank',
+      },
+      {
+        accessorKey: 'attributes.headFESName',
+        header: 'ПІБ',
+        id: 'headFESName',
+      },
+    ],
+  },
+  {
+    header: 'Діловод РАО',
+    id: 'clerk',
+    columns: [
+      {
+        accessorKey: 'attributes.clerkRank',
+        header: 'Звання',
+        id: 'clerkRank',
+      },
+      {
+        accessorKey: 'attributes.clerkName',
+        header: 'ПІБ',
+        id: 'clerkName',
+      },
+    ],
+  },
+  {
+    header: 'Нач. Складу',
+    id: 'warehouseHead',
+    columns: [
+      {
+        accessorKey: 'attributes.warehouseHeadRank',
+        header: 'Звання',
+        id: 'warehouseHeadRank',
+      },
+      {
+        accessorKey: 'attributes.warehouseHeadName',
+        header: 'ПІБ',
+        id: 'warehouseHeadName',
+      },
+      {
+        accessorKey: 'attributes.warehouseStatus',
+        header: 'Статус',
+        id: 'warehouseStatus',
+      },
+    ],
   },
 ];
 
@@ -143,30 +244,38 @@ const Addon47Table = () => {
   const [globalFilter, setGlobalFilter] = useState<string>();
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
 
-  const { data, fetchNextPage, isError, isFetching, isLoading } = useInfiniteQuery<UserApiResponse>({
+  const { data, fetchNextPage, isError, isFetching, isLoading } = useInfiniteQuery<InvoiceApiResponse>({
     queryKey: ['table-data', columnFilters, globalFilter, sorting],
-    queryFn: async ({ pageParam = 0 }) => {
-      const url = '/api/';
-      const params = {
-        start: `${pageParam * FETCH_SIZE}`,
-        size: `${FETCH_SIZE}`,
-        filters: JSON.stringify(columnFilters ?? []),
-        globalFilter: globalFilter ?? '',
-        sorting: JSON.stringify(sorting ?? []),
-      };
+    queryFn: async ({ pageParam = 1 }) => { // Start from page 1
+      const url = `http://localhost:1337/api/invoices?populate=items&pagination[page]=${pageParam}&pagination[pageSize]=${FETCH_SIZE}`; // Додали populate=items
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+      });
 
-      const response = await axios.get(url, { params });
-      const json = response.data as UserApiResponse;
-      return json;
+      return response.data;
     },
-    getNextPageParam: (_lastGroup, groups) => groups.length,
-    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.pagination.page < lastPage.meta.pagination.pageCount) {
+        return lastPage.meta.pagination.page + 1; 
+      }
+      return undefined; // No more pages
+    },
     refetchOnWindowFocus: false,
+    initialPageParam: 1,
   });
 
-  const flatData = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+  const flatData = useMemo(
+    () => data?.pages.flatMap((page) => 
+      page.data.map(item => ({
+        id: item.id, 
+        attributes: item.attributes 
+      }))
+    ) ?? [],
+    [data]
+  );
 
-  const totalDBRowCount = data?.pages?.[0]?.meta?.totalRowCount ?? 0;
+  const totalDBRowCount = data?.pages?.[0]?.meta?.pagination?.total ?? 0;
+
   const totalFetched = flatData.length;
 
   const fetchMoreOnBottomReached = useCallback(
@@ -197,7 +306,15 @@ const Addon47Table = () => {
     fetchMoreOnBottomReached(tableContainerRef.current);
   }, [fetchMoreOnBottomReached]);
 
-  const table = useMantineReactTable<User>({
+  const handleGenerateDocument = async () => {
+    try {
+      await generateDocument(1); // Pass the appropriate invoice ID if needed
+    } catch (error) {
+      console.error('Error generating document:', error);
+    }
+  };
+
+  const table = useMantineReactTable({
     columns,
     data: flatData,
     enablePagination: false,
@@ -210,7 +327,7 @@ const Addon47Table = () => {
     mantineTableProps: {
       highlightOnHover: true,
       withColumnBorders: true,
-      withBorder: true
+      withBorder: true,
     },
     mantineTableContainerProps: {
       ref: tableContainerRef,
@@ -227,16 +344,20 @@ const Addon47Table = () => {
     onSortingChange: setSorting,
     renderTopToolbarCustomActions: () => (
       <div className='flex justify-between'>
-        
-          <Text className='text-2xl font-bold px-10'>
-            9 мм пістолет ПМ
-          </Text>
-        
-          <Text className='text-2xl font-bold px-10'>
-            Код номенклатури:
-          </Text>
-        
-      </div>
+        <Text className='text-2xl font-bold px-10'>
+          {flatData.length > 0 ? (
+            flatData[0].attributes.items?.data[0]?.attributes?.itemList || "Gun"
+          ) : (
+            "Gun"
+          )}
+        </Text>
+        <Text className='text-2xl font-bold px-10'>
+          Код номенклатури: {flatData.length > 0 ? flatData[0].attributes.number || '' : ''}
+        </Text>
+        <Button onClick={handleGenerateDocument}>
+          Генерувати
+        </Button>
+        </div>
     ),
     renderBottomToolbarCustomActions: () => (
       <Text>
@@ -256,7 +377,7 @@ const Addon47Table = () => {
     columnVirtualizerProps: { overscan: 2 },
   });
 
-  return <MantineReactTable table={table} />
+  return <MantineReactTable table={table} />;
 };
 
 const queryClient = new QueryClient();
