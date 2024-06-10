@@ -43,14 +43,17 @@ export function Invoice() {
     };
 
     const handleSubmit = async () => {
+        if (!formData.operation || !formData.number || !formData.basis || !formData.headRAO || !formData.headFES || !formData.clerk || !formData.warehouseStatus || !formData.recipientStatus) {
+            alert('Будь ласка, заповніть всі обов\'язкові поля');
+            return;
+        }
+        // 2. Відправка даних на сервер, якщо форма заповнена
         try {
           await saveInvoice(formData);
           alert('Дані успішно збережені');
-    
-          
           setFormData(initialFormData);
-          setValue(null); 
-          setValue1(null); 
+          setValue(null);
+          setValue1(null);
         } catch (error) {
           alert('Помилка збереження даних');
         }
