@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "itemlists",
+  "info": {
+    "singularName": "itemlist",
+    "pluralName": "itemlists",
+    "displayName": "itemlist"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "list": {
+      "type": "string"
+    }
+  }
+}

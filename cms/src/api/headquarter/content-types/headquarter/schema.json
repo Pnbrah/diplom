@@ -1,0 +1,19 @@
+{
+  "kind": "collectionType",
+  "collectionName": "headquarters",
+  "info": {
+    "singularName": "headquarter",
+    "pluralName": "headquarters",
+    "displayName": "headquarter",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "code": {
+      "type": "string"
+    }
+  }
+}

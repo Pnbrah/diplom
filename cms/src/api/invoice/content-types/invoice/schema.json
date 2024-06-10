@@ -1,0 +1,105 @@
+{
+  "kind": "collectionType",
+  "collectionName": "invoices",
+  "info": {
+    "singularName": "invoice",
+    "pluralName": "invoices",
+    "displayName": "Invoice",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "number": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "date": {
+      "type": "date"
+    },
+    "headquarterSender": {
+      "type": "string"
+    },
+    "warehouseSender": {
+      "type": "string"
+    },
+    "headquarterReceiver": {
+      "type": "string"
+    },
+    "warehouseReceiver": {
+      "type": "string"
+    },
+    "basis": {
+      "type": "string"
+    },
+    "basisHeadquarter": {
+      "type": "string"
+    },
+    "basisDate": {
+      "type": "date"
+    },
+    "basisNumber": {
+      "type": "integer"
+    },
+    "headRAO": {
+      "type": "string"
+    },
+    "headRAORank": {
+      "type": "string"
+    },
+    "headRAOName": {
+      "type": "string"
+    },
+    "headFES": {
+      "type": "string"
+    },
+    "headFESRank": {
+      "type": "string"
+    },
+    "headFESName": {
+      "type": "string"
+    },
+    "clerk": {
+      "type": "string"
+    },
+    "clerkRank": {
+      "type": "string"
+    },
+    "clerkName": {
+      "type": "string"
+    },
+    "warehouseHead": {
+      "type": "string"
+    },
+    "warehouseHeadRank": {
+      "type": "string"
+    },
+    "warehouseHeadName": {
+      "type": "string"
+    },
+    "warehouseStatus": {
+      "type": "string"
+    },
+    "recipient": {
+      "type": "string"
+    },
+    "recipientStatus": {
+      "type": "string"
+    },
+    "recipientRank": {
+      "type": "string"
+    },
+    "recipientName": {
+      "type": "string"
+    },
+    "items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::item.item"
+    }
+  }
+}

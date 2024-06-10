@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "items",
+  "info": {
+    "singularName": "item",
+    "pluralName": "items",
+    "displayName": "item",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "price": {
+      "type": "float"
+    },
+    "quantity": {
+      "type": "integer"
+    },
+    "itemNumber": {
+      "type": "integer"
+    },
+    "itemList": {
+      "type": "string"
+    }
+  }
+}
